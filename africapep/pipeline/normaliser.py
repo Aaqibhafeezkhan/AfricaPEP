@@ -245,6 +245,14 @@ def _transliterate_name(name: str) -> str:
     return ascii_name
 
 
+def _format_name_alternate(alternate: str, uppercase: bool) -> str:
+    """Preserve name casing while keeping particles such as "el" lowercase."""
+    if not uppercase:
+        return alternate
+    words = alternate.split()
+    return " ".join([words[0].title(), *(word.lower() for word in words[1:])])
+
+
 def generate_name_variants(full_name: str) -> list[str]:
     """Generate alternative name forms for fuzzy matching.
 
@@ -279,7 +287,7 @@ def generate_name_variants(full_name: str) -> list[str]:
         if part_lower in _NAME_PREFIX_ALTERNATES:
             for alternate in _NAME_PREFIX_ALTERNATES[part_lower]:
                 alt_parts = list(parts)
-                alt_parts[i] = alternate.title() if part[0].isupper() else alternate
+                alt_parts[i] = _format_name_alternate(alternate, part[0].isupper())
                 variants.add(" ".join(alt_parts))
 
     # Handle multi-word forms such as "Abd el" and "Abd al" as well as
@@ -291,7 +299,7 @@ def generate_name_variants(full_name: str) -> list[str]:
         pattern = re.compile(rf"(?i)\\b{re.escape(source)}\\b")
         if pattern.search(original):
             for alternate in alternates:
-                variants.add(pattern.sub(alternate.title(), original))
+                variants.add(pattern.sub(lambda match: _format_name_alternate(alternate, match.group(0)[0].isupper()), original))
 
     return list(variants)
 
