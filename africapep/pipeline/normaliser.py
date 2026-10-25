@@ -296,7 +296,7 @@ def generate_name_variants(full_name: str) -> list[str]:
     for source, alternates in _NAME_PREFIX_ALTERNATES.items():
         if " " not in source:
             continue
-        pattern = re.compile(rf"(?i)\\b{re.escape(source)}\\b")
+        pattern = re.compile(rf"(?i)\b{re.escape(source)}\b")
         if pattern.search(original):
             for alternate in alternates:
                 variants.add(pattern.sub(lambda match: _format_name_alternate(alternate, match.group(0)[0].isupper()), original))
